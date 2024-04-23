@@ -1,5 +1,6 @@
 package thecommerce.jh.member.repository;
 
+import thecommerce.jh.member.enums.SortBy;
 import thecommerce.jh.member.model.Member;
 
 import java.util.List;
@@ -12,7 +13,7 @@ public interface MemberRepository {
 
     List<Member> findByArguments(Member member);
 
-    List<Member> findAll(int offset, int limit);
+    List<Member> findAll(int offset, int limit, SortBy sortBy, boolean desc);
 
     Member update(Member member);
 }

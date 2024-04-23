@@ -4,11 +4,15 @@ import com.sun.istack.NotNull;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import org.springframework.lang.Nullable;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 
 @Entity
+@EntityListeners(AuditingEntityListener.class)
 @NoArgsConstructor
 @Getter
 public class Member {
@@ -38,6 +42,9 @@ public class Member {
     @Nullable
     @Column(unique = true)
     private String email;
+
+    @CreatedDate
+    private LocalDateTime createdAt;
 
     @Builder
     public Member(String userId, String password, String name, String nickname, String phoneNumber, String email) {

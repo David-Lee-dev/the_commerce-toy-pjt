@@ -27,8 +27,10 @@ public class MemberServiceImpl implements MemberService{
     }
 
     @Override
-    public Member retrieveMembers(int page, int pageSize, SortBy sortBy) {
-        return null;
+    public List<Member> retrieveMembers(int page, int pageSize, SortBy sortBy, boolean desc) {
+        int offset = pageSize * (page - 1);
+
+        return memberRepository.findAll(offset, pageSize, sortBy, desc);
     }
 
     @Override

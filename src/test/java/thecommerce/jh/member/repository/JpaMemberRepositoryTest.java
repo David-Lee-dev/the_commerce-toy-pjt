@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.util.ReflectionTestUtils;
+import thecommerce.jh.member.enums.SortBy;
 import thecommerce.jh.member.model.Member;
 
 import javax.transaction.Transactional;
@@ -86,11 +87,15 @@ class JpaMemberRepositoryTest {
 
         memberRepository.insert(memberA);
         memberRepository.insert(memberB);
-        List<Member> members = memberRepository.findAll(0, 10);
-        List<Member> limitedMembers = memberRepository.findAll(0, 1);
+        List<Member> members = memberRepository.findAll(0, 10, null, false);
+        List<Member> membersOrderedByCreatedAtDesc = memberRepository.findAll(0, 10, SortBy.CREATED_AT, true);
+        List<Member> membersLimited = memberRepository.findAll(1, 1, null, false);
 
         assertThat(members.size()).isEqualTo(2);
-        assertThat(limitedMembers.size()).isEqualTo(1);
+        assertThat(membersOrderedByCreatedAtDesc.get(0)).isEqualTo(memberB);
+        assertThat(membersOrderedByCreatedAtDesc.get(1)).isEqualTo(memberA);
+        assertThat(membersLimited.size()).isEqualTo(1);
+        assertThat(membersLimited.get(0)).isEqualTo(memberB);
     }
 
     @Test

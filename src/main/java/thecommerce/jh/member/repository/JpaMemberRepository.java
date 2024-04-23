@@ -1,6 +1,7 @@
 package thecommerce.jh.member.repository;
 
 import org.springframework.stereotype.Repository;
+import thecommerce.jh.member.enums.SortBy;
 import thecommerce.jh.member.model.Member;
 
 import javax.persistence.EntityManager;
@@ -9,7 +10,6 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -64,13 +64,25 @@ public class JpaMemberRepository implements MemberRepository {
     }
 
     @Override
-    public List<Member> findAll(int offset, int limit) {
+    public List<Member> findAll(int offset, int limit, SortBy sortBy, boolean desc) {
+        String queryString = "SELECT m FROM Member m ORDER BY ";
 
-        return entityManager.createQuery("SELECT m FROM Member m", Member.class)
+        if (sortBy == SortBy.CREATED_AT) {
+            queryString += "m.createdAt";
+        } else {
+            queryString += "m.name";
+        }
+
+        if (desc) {
+            queryString += " DESC";
+        }
+
+        return entityManager.createQuery(queryString, Member.class)
                 .setFirstResult(offset)
                 .setMaxResults(limit)
                 .getResultList();
     }
+
 
     @Override
     public Member update(Member member) {
