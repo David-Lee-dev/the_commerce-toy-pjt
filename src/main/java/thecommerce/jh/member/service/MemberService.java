@@ -1,6 +1,6 @@
 package thecommerce.jh.member.service;
 
-import thecommerce.jh.member.SortBy;
+import thecommerce.jh.member.enums.SortBy;
 import thecommerce.jh.member.model.Member;
 
 public interface MemberService {
