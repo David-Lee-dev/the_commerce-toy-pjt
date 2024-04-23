@@ -86,9 +86,11 @@ class JpaMemberRepositoryTest {
 
         memberRepository.insert(memberA);
         memberRepository.insert(memberB);
-        List<Member> members = memberRepository.findAll();
+        List<Member> members = memberRepository.findAll(0, 10);
+        List<Member> limitedMembers = memberRepository.findAll(0, 1);
 
         assertThat(members.size()).isEqualTo(2);
+        assertThat(limitedMembers.size()).isEqualTo(1);
     }
 
     @Test

@@ -12,7 +12,7 @@ public interface MemberRepository {
 
     List<Member> findByArguments(Member member);
 
-    List<Member> findAll();
+    List<Member> findAll(int offset, int limit);
 
     Member update(Member member);
 }
