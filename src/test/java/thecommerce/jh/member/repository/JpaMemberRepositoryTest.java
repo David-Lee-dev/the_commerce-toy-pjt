@@ -1,6 +1,5 @@
 package thecommerce.jh.member.repository;
 
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -30,6 +29,46 @@ class JpaMemberRepositoryTest {
         Member newMember = memberRepository.insert(member);
 
         assertThat(newMember).isEqualTo(member);
+    }
+
+    @Test
+    void findById() {
+        Member member = Member.builder()
+                .userId("test_userId")
+                .password("test_password")
+                .name("test_name")
+                .build();
+
+        Member newMember = memberRepository.insert(member);
+        Member foundMember = memberRepository.findById(newMember.getId()).get();
+
+        assertThat(newMember).isEqualTo(foundMember);
+    }
+
+    @Test
+    void findByArguments() {
+        Member member = Member.builder()
+                .userId("test_userId")
+                .password("test_password")
+                .name("test_name")
+                .nickname("test_nickname")
+                .phoneNumber("010-0000-0000")
+                .email("test@test.com")
+                .build();
+
+        memberRepository.insert(member);
+
+        List<Member> foundByUserId = memberRepository.findByArguments(Member.builder().userId("test_userId").build());
+        List<Member> foundByNickname = memberRepository.findByArguments(Member.builder().nickname("test_nickname").build());
+        List<Member> foundByPhoneNumber = memberRepository.findByArguments(Member.builder().phoneNumber("010-0000-0000").build());
+        List<Member> foundByEmail = memberRepository.findByArguments(Member.builder().email("test@test.com").build());
+        List<Member> foundByMultiArguments = memberRepository.findByArguments(Member.builder().phoneNumber("010-0000-0000").email("test@test.com").build());
+
+        assertThat(foundByUserId.size()).isEqualTo(1);
+        assertThat(foundByNickname.size()).isEqualTo(1);
+        assertThat(foundByPhoneNumber.size()).isEqualTo(1);
+        assertThat(foundByEmail.size()).isEqualTo(1);
+        assertThat(foundByMultiArguments.size()).isEqualTo(1);
     }
 
     @Test
