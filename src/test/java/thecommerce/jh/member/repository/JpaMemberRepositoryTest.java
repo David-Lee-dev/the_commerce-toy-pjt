@@ -56,7 +56,6 @@ class JpaMemberRepositoryTest {
                 .phoneNumber("010-0000-0000")
                 .email("test@test.com")
                 .build();
-
         memberRepository.insert(member);
 
         List<Member> foundByUserId = memberRepository.findByArguments(Member.builder().userId("test_userId").build());
@@ -107,14 +106,16 @@ class JpaMemberRepositoryTest {
                 .password(originalPassword)
                 .name("test_name")
                 .build();
-        Member newMember = memberRepository.insert(member);
 
-        assertThat(newMember).isEqualTo(member);
-
+        Member newMember = Member.builder()
+                .userId("test_userId")
+                .password(changedPassword)
+                .name("test_name")
+                .build();
         ReflectionTestUtils.setField(
                 newMember,
-                "password",
-                changedPassword
+                "id",
+                member.getId()
         );
         Member updatedMember = memberRepository.update(newMember);
 
