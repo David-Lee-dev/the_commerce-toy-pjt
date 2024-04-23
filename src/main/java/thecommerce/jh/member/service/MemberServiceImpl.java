@@ -35,6 +35,10 @@ public class MemberServiceImpl implements MemberService{
 
     @Override
     public Member updateMember(Member member) {
-        return null;
+        if(!memberRepository.findById(member.getId()).isPresent()) {
+            throw new RuntimeException("no existed resource");
+        }
+
+        return memberRepository.update(member);
     }
 }

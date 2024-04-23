@@ -17,6 +17,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @SpringBootTest
 class MemberServiceImplTest {
@@ -87,6 +88,7 @@ class MemberServiceImplTest {
             when(memberRepository.findAll(anyInt(), anyInt(), any(SortBy.class), anyBoolean())).thenReturn(returnValueOfRepository);
 
             List<Member> members = memberService.retrieveMembers(0, 10, SortBy.CREATED_AT, true);
+
             assertThat(members.size()).isEqualTo(3);
         }
 
@@ -96,6 +98,35 @@ class MemberServiceImplTest {
             memberService.retrieveMembers(3, 12, SortBy.CREATED_AT, false);
             verify(memberRepository).findAll(offsetCaptor.capture(), anyInt(), any(SortBy.class), anyBoolean());
             assertThat(offsetCaptor.getValue()).isEqualTo(24);
+        }
+    }
+
+    @Nested
+    class UpdateMember {
+
+        @Test
+        @DisplayName("정상적으로 데이터 업데이트")
+        void idealUpdate() {
+            Member member = Member.builder().id(1L).build();
+            Member memberUpdated = Member.builder()
+                    .id(1L)
+                    .password("test_password")
+                    .build();
+
+            when(memberRepository.findById(member.getId())).thenReturn(Optional.of(member));
+            when(memberRepository.update(memberUpdated)).thenReturn(memberUpdated);
+
+            Member result = memberService.updateMember(memberUpdated);
+
+            assertThat(result).isEqualTo(memberUpdated);
+        }
+
+        @Test
+        @DisplayName("존재하지 않는 Member일 경우 오류 발생")
+        void noExistedResourceViolation() {
+            when(memberRepository.findById(100L)).thenReturn(null);
+
+            assertThatThrownBy(() -> memberService.updateMember(new Member())).isInstanceOf(RuntimeException.class);
         }
     }
 }

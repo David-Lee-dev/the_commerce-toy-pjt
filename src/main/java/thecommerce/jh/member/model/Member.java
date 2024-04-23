@@ -47,7 +47,8 @@ public class Member {
     private LocalDateTime createdAt;
 
     @Builder
-    public Member(String userId, String password, String name, String nickname, String phoneNumber, String email) {
+    public Member(Long id, String userId, String password, String name, String nickname, String phoneNumber, String email) {
+        this.id = id;
         this.userId = userId;
         this.password = password;
         this.name = name;
