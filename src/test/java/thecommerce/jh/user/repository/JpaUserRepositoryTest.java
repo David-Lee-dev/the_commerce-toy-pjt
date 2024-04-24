@@ -2,23 +2,27 @@ package thecommerce.jh.user.repository;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.util.ReflectionTestUtils;
 import thecommerce.jh.user.common.enums.SortBy;
+import thecommerce.jh.user.config.AppConfig;
 import thecommerce.jh.user.model.User;
-
-import javax.transaction.Transactional;
 
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.*;
 
-@Transactional
-@SpringBootTest
+@Import({AppConfig.class, JpaUserRepository.class})
+@DataJpaTest
 class JpaUserRepositoryTest {
 
     @Autowired
     UserRepository userRepository;
+
+    @Autowired
+    private TestEntityManager entityManager;
 
     @Test
     void insert() {
@@ -27,15 +31,11 @@ class JpaUserRepositoryTest {
                 .password("test_password")
                 .name("test_name")
                 .build();
-        User newUser = userRepository.insert(user);
-        User user2 = User.builder()
-                .userId("test_userId1")
-                .password("test_password")
-                .name("test_name")
-                .build();
-        userRepository.insert(user2);
+        userRepository.insert(user);
 
-        assertThat(newUser).isEqualTo(user);
+        User createdUser = entityManager.find(User.class, user.getId());
+
+        assertThat(createdUser).isEqualTo(user);
     }
 
     @Test
@@ -45,11 +45,11 @@ class JpaUserRepositoryTest {
                 .password("test_password")
                 .name("test_name")
                 .build();
+        userRepository.insert(user);
 
-        User newUser = userRepository.insert(user);
-        User foundUser = userRepository.findById(newUser.getId()).get();
+        User foundUser = userRepository.findById(user.getId()).get();
 
-        assertThat(newUser).isEqualTo(foundUser);
+        assertThat(foundUser).isEqualTo(user);
     }
 
     @Test
@@ -64,11 +64,11 @@ class JpaUserRepositoryTest {
                 .build();
         userRepository.insert(user);
 
-        List<User> foundByUserId = userRepository.findByArguments(User.builder().userId("test_userId").build());
-        List<User> foundByNickname = userRepository.findByArguments(User.builder().nickname("test_nickname").build());
-        List<User> foundByPhoneNumber = userRepository.findByArguments(User.builder().phoneNumber("010-0000-0000").build());
-        List<User> foundByEmail = userRepository.findByArguments(User.builder().email("test@test.com").build());
-        List<User> foundByMultiArguments = userRepository.findByArguments(User.builder().phoneNumber("010-0000-0000").email("test@test.com").build());
+        List<User> foundByUserId = userRepository.findByArguments(User.builder().userId(user.getUserId()).build());
+        List<User> foundByNickname = userRepository.findByArguments(User.builder().nickname(user.getNickname()).build());
+        List<User> foundByPhoneNumber = userRepository.findByArguments(User.builder().phoneNumber(user.getPhoneNumber()).build());
+        List<User> foundByEmail = userRepository.findByArguments(User.builder().email(user.getEmail()).build());
+        List<User> foundByMultiArguments = userRepository.findByArguments(User.builder().phoneNumber(user.getPhoneNumber()).email(user.getEmail()).build());
 
         assertThat(foundByUserId.size()).isEqualTo(1);
         assertThat(foundByNickname.size()).isEqualTo(1);
@@ -89,9 +89,9 @@ class JpaUserRepositoryTest {
                 .password("test_password_B")
                 .name("test_name_B")
                 .build();
-
         userRepository.insert(userA);
         userRepository.insert(userB);
+
         List<User> users = userRepository.findAll(0, 10, null, false);
         List<User> usersOrderedByCreatedAtDesc = userRepository.findAll(0, 10, SortBy.CREATED_AT, true);
         List<User> usersLimited = userRepository.findAll(1, 1, null, false);
@@ -118,11 +118,8 @@ class JpaUserRepositoryTest {
                 .password(changedPassword)
                 .name("test_name")
                 .build();
-        ReflectionTestUtils.setField(
-                newUser,
-                "id",
-                user.getId()
-        );
+        ReflectionTestUtils.setField(newUser,"id",user.getId());
+
         User updatedUser = userRepository.update(newUser);
 
         assertThat(updatedUser.getPassword()).isNotEqualTo(originalPassword);
