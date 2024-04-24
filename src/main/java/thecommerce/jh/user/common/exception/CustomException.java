@@ -1,7 +1,7 @@
-package thecommerce.jh.member.common.exception;
+package thecommerce.jh.user.common.exception;
 
 import lombok.Getter;
-import thecommerce.jh.member.common.enums.ErrorCode;
+import thecommerce.jh.user.common.enums.ErrorCode;
 
 @Getter
 public class CustomException extends RuntimeException {

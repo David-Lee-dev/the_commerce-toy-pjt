@@ -1,4 +1,4 @@
-package thecommerce.jh.member;
+package thecommerce.jh.user;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -6,10 +6,10 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
 @SpringBootApplication
 @EnableJpaAuditing
-public class MemberApplication {
+public class Application {
 
-	public static void main(String[] args) {
-		SpringApplication.run(MemberApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(Application.class, args);
+    }
 
 }

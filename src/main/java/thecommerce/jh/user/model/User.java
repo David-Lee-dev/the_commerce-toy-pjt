@@ -1,4 +1,4 @@
-package thecommerce.jh.member.model;
+package thecommerce.jh.user.model;
 
 import com.sun.istack.NotNull;
 import lombok.Builder;
@@ -11,11 +11,12 @@ import org.springframework.lang.Nullable;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
+@Table(name = "users")
 @Entity
 @EntityListeners(AuditingEntityListener.class)
 @NoArgsConstructor
 @Getter
-public class Member {
+public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -47,7 +48,7 @@ public class Member {
     private LocalDateTime createdAt;
 
     @Builder
-    public Member(Long id, String userId, String password, String name, String nickname, String phoneNumber, String email) {
+    public User(Long id, String userId, String password, String name, String nickname, String phoneNumber, String email) {
         this.id = id;
         this.userId = userId;
         this.password = password;

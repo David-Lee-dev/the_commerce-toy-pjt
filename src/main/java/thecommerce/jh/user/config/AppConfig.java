@@ -1,4 +1,4 @@
-package thecommerce.jh.member.config;
+package thecommerce.jh.user.config;
 
 import org.springframework.context.annotation.Configuration;
 

@@ -1,4 +1,4 @@
-package thecommerce.jh.member.common.enums;
+package thecommerce.jh.user.common.enums;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
