@@ -1,11 +1,14 @@
 package thecommerce.jh.member.service;
 
 import org.springframework.stereotype.Service;
-import thecommerce.jh.member.enums.SortBy;
+import thecommerce.jh.member.common.enums.ErrorCode;
+import thecommerce.jh.member.common.enums.SortBy;
+import thecommerce.jh.member.common.exception.CustomException;
 import thecommerce.jh.member.model.Member;
 import thecommerce.jh.member.repository.MemberRepository;
 
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class MemberServiceImpl implements MemberService{
@@ -20,7 +23,7 @@ public class MemberServiceImpl implements MemberService{
         List<Member> foundMembers = memberRepository.findByArguments(member);
 
         if(!foundMembers.isEmpty()) {
-            throw new RuntimeException("user input violation");
+            checkDuplication(member, foundMembers);
         }
 
         return memberRepository.insert(member);
@@ -36,9 +39,29 @@ public class MemberServiceImpl implements MemberService{
     @Override
     public Member updateMember(Member member) {
         if(!memberRepository.findById(member.getId()).isPresent()) {
-            throw new RuntimeException("no existed resource");
+            throw new CustomException(ErrorCode.NON_EXISTENT);
         }
 
         return memberRepository.update(member);
+    }
+
+    private static void checkDuplication(Member member, List<Member> compareList) {
+        for (Member compare : compareList) {
+            if (Objects.equals(compare.getUserId(), member.getUserId())) {
+                throw new CustomException(ErrorCode.DUPLICATED_USER_ID);
+            }
+
+            if (Objects.equals(compare.getPhoneNumber(), member.getPhoneNumber())) {
+                throw new CustomException(ErrorCode.DUPLICATED_PHONE_NUMBER);
+            }
+
+            if (Objects.equals(compare.getEmail(), member.getEmail())) {
+                throw new CustomException(ErrorCode.DUPLICATED_EMAIL);
+            }
+
+            if (Objects.equals(compare.getNickname(), member.getNickname())) {
+                throw new CustomException(ErrorCode.DUPLICATED_NICKNAME);
+            }
+        }
     }
 }

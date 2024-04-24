@@ -6,7 +6,9 @@ import org.mockito.Captor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import thecommerce.jh.member.enums.SortBy;
+import thecommerce.jh.member.common.enums.ErrorCode;
+import thecommerce.jh.member.common.enums.SortBy;
+import thecommerce.jh.member.common.exception.CustomException;
 import thecommerce.jh.member.model.Member;
 import thecommerce.jh.member.repository.MemberRepository;
 
@@ -60,14 +62,75 @@ class MemberServiceImplTest {
         }
 
         @Test
-        @DisplayName("동일한 정보를 가진 Member가 존재하는 경우 오류 발생")
+        @DisplayName("중복 userId에 대해 오류 발생")
+        void userIdViolation() {
+            List<Member> returnValueOfRepository = new ArrayList<>();
+            returnValueOfRepository.add(existedMember);
+            Member duplicatedUserId = Member.builder().userId(existedMember.getUserId()).build();
+
+            when(memberRepository.findByArguments(any(Member.class))).thenReturn(returnValueOfRepository);
+
+            try {
+                memberService.createMember(duplicatedUserId);
+            } catch(CustomException e) {
+                assertThat(e).isInstanceOf(CustomException.class);
+                assertThat(e.getErrorCode()).isEqualTo(ErrorCode.DUPLICATED_USER_ID);
+            }
+
+        }
+
+        @Test
+        @DisplayName("중복 phoneNumber에 대해 오류 발생")
+        void phoneNumberViolation() {
+            List<Member> returnValueOfRepository = new ArrayList<>();
+            returnValueOfRepository.add(existedMember);
+            Member duplicatedUserId = Member.builder().phoneNumber(existedMember.getPhoneNumber()).build();
+
+            when(memberRepository.findByArguments(any(Member.class))).thenReturn(returnValueOfRepository);
+
+            try {
+                memberService.createMember(duplicatedUserId);
+            } catch(CustomException e) {
+                assertThat(e).isInstanceOf(CustomException.class);
+                assertThat(e.getErrorCode()).isEqualTo(ErrorCode.DUPLICATED_PHONE_NUMBER);
+            }
+
+        }
+
+        @Test
+        @DisplayName("중복 email 대해 오류 발생")
+        void emailViolation() {
+            List<Member> returnValueOfRepository = new ArrayList<>();
+            returnValueOfRepository.add(existedMember);
+            Member duplicatedUserId = Member.builder().email(existedMember.getEmail()).build();
+
+            when(memberRepository.findByArguments(any(Member.class))).thenReturn(returnValueOfRepository);
+
+            try {
+                memberService.createMember(duplicatedUserId);
+            } catch(CustomException e) {
+                assertThat(e).isInstanceOf(CustomException.class);
+                assertThat(e.getErrorCode()).isEqualTo(ErrorCode.DUPLICATED_EMAIL);
+            }
+
+        }
+
+        @Test
+        @DisplayName("중복 nickname에 대해 오류 발생")
         void nicknameViolation() {
             List<Member> returnValueOfRepository = new ArrayList<>();
             returnValueOfRepository.add(existedMember);
+            Member duplicatedUserId = Member.builder().nickname(existedMember.getNickname()).build();
 
-            when(memberRepository.findByArguments(existedMember)).thenReturn(returnValueOfRepository);
+            when(memberRepository.findByArguments(any(Member.class))).thenReturn(returnValueOfRepository);
 
-            assertThatThrownBy(() -> memberService.createMember(existedMember)).isInstanceOf(RuntimeException.class);
+            try {
+                memberService.createMember(duplicatedUserId);
+            } catch(CustomException e) {
+                assertThat(e).isInstanceOf(CustomException.class);
+                assertThat(e.getErrorCode()).isEqualTo(ErrorCode.DUPLICATED_NICKNAME);
+            }
+
         }
     }
 
@@ -126,7 +189,12 @@ class MemberServiceImplTest {
         void noExistedResourceViolation() {
             when(memberRepository.findById(100L)).thenReturn(null);
 
-            assertThatThrownBy(() -> memberService.updateMember(new Member())).isInstanceOf(RuntimeException.class);
+            try {
+                memberService.updateMember(new Member());
+            } catch(CustomException e) {
+                assertThat(e).isInstanceOf(CustomException.class);
+                assertThat(e.getErrorCode()).isEqualTo(ErrorCode.NON_EXISTENT);
+            }
         }
     }
 }

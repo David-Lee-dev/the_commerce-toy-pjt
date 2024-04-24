@@ -1,6 +1,6 @@
 package thecommerce.jh.member.repository;
 
-import thecommerce.jh.member.enums.SortBy;
+import thecommerce.jh.member.common.enums.SortBy;
 import thecommerce.jh.member.model.Member;
 
 import java.util.List;

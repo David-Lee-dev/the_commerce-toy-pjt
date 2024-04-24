@@ -1,7 +1,7 @@
 package thecommerce.jh.member.repository;
 
 import org.springframework.stereotype.Repository;
-import thecommerce.jh.member.enums.SortBy;
+import thecommerce.jh.member.common.enums.SortBy;
 import thecommerce.jh.member.model.Member;
 
 import javax.persistence.EntityManager;

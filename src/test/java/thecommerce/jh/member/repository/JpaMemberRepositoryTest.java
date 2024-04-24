@@ -4,7 +4,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.util.ReflectionTestUtils;
-import thecommerce.jh.member.enums.SortBy;
+import thecommerce.jh.member.common.enums.SortBy;
 import thecommerce.jh.member.model.Member;
 
 import javax.transaction.Transactional;
@@ -28,6 +28,12 @@ class JpaMemberRepositoryTest {
                 .name("test_name")
                 .build();
         Member newMember = memberRepository.insert(member);
+        Member member2 = Member.builder()
+                .userId("test_userId1")
+                .password("test_password")
+                .name("test_name")
+                .build();
+        memberRepository.insert(member2);
 
         assertThat(newMember).isEqualTo(member);
     }
