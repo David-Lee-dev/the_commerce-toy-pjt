@@ -7,10 +7,12 @@ import thecommerce.jh.user.common.exception.CustomException;
 import thecommerce.jh.user.model.User;
 import thecommerce.jh.user.repository.UserRepository;
 
+import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Objects;
 
 @Service
+@Transactional
 public class UserServiceImpl implements UserService{
     private final UserRepository userRepository;
 
