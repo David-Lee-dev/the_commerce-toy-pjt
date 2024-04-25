@@ -10,7 +10,10 @@ import thecommerce.jh.user.dto.UserCreationDto;
 import thecommerce.jh.user.dto.UserDto;
 import thecommerce.jh.user.service.UserService;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @RestController
@@ -52,6 +55,11 @@ public class UserController {
                 .map(user -> new UserDto(user))
                 .collect(Collectors.toList());
 
-        return ResponseEntity.status(HttpStatus.OK).body(users);
+        Map<String, Object> responseObject = new HashMap<>();
+        responseObject.put("page", page);
+        responseObject.put("total", users.size());
+        responseObject.put("users", users);
+
+        return ResponseEntity.status(HttpStatus.OK).body(responseObject);
     }
 }

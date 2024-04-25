@@ -151,22 +151,25 @@ class UserControllerTest {
         @DisplayName("정상 요청")
         void idealRequest() throws Exception {
 
-            when(userService.retrieveUsers(anyInt(), anyInt(), any(SortBy.class), anyBoolean())).thenReturn(Arrays.asList(firstUser, secondUser));
+            when(userService.retrieveUsers(anyInt(), anyInt(), any(SortBy.class), anyBoolean()))
+                    .thenReturn(Arrays.asList(firstUser, secondUser));
 
             mvc.perform(MockMvcRequestBuilders
                             .get("/api/user/list")
                             .param("page", "1")
-                            .param("pageSize", "10")
+                            .param("pageSize", "2")
                             .param("sort", "name"))
                     .andExpect(status().isOk())
-                    .andExpect(jsonPath(".[0].id").isNotEmpty())
-                    .andExpect(jsonPath(".[0].name").isNotEmpty())
-                    .andExpect(jsonPath(".[0].nickname").isNotEmpty())
-                    .andExpect(jsonPath(".[0].phoneNumber").isNotEmpty())
-                    .andExpect(jsonPath(".[0].email").isNotEmpty())
-                    .andExpect(jsonPath(".[0].createdAt").isNotEmpty())
-                    .andExpect(jsonPath(".[0].userId").isEmpty())
-                    .andExpect(jsonPath(".[0].password").isEmpty());
+                    .andExpect(jsonPath(".page").value(1))
+                    .andExpect(jsonPath(".total").value(2))
+                    .andExpect(jsonPath(".users.[0].id").isNotEmpty())
+                    .andExpect(jsonPath(".users.[0].name").isNotEmpty())
+                    .andExpect(jsonPath(".users.[0].nickname").isNotEmpty())
+                    .andExpect(jsonPath(".users.[0].phoneNumber").isNotEmpty())
+                    .andExpect(jsonPath(".users.[0].email").isNotEmpty())
+                    .andExpect(jsonPath(".users.[0].createdAt").isNotEmpty())
+                    .andExpect(jsonPath(".users.[0].userId").isEmpty())
+                    .andExpect(jsonPath(".users.[0].password").isEmpty());
         }
 
         @Test
