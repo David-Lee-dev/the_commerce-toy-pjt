@@ -13,7 +13,8 @@ public enum ErrorCode {
     DUPLICATED_EMAIL(HttpStatus.BAD_REQUEST, "003_DUPLICATED_EMAIL", "email is duplicated"),
     DUPLICATED_NICKNAME(HttpStatus.BAD_REQUEST, "004_DUPLICATED_NICKNAME", "nickname is duplicated"),
     NON_EXISTENT(HttpStatus.NOT_FOUND, "005_NON_EXISTENT", "non-existent resource"),
-    INVALID_PASSWORD(HttpStatus.BAD_REQUEST, "006_INVALID_PASSWORD", "password not matched");
+    INVALID_PASSWORD(HttpStatus.BAD_REQUEST, "006_INVALID_PASSWORD", "password not matched"),
+    INVALID_PAGINATION(HttpStatus.BAD_REQUEST, "007_INVALID_PAGINATION", "password not matched");
 
     private final HttpStatus httpStatus;
     private final String code;

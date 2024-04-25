@@ -34,7 +34,6 @@ public class UserServiceImpl implements UserService{
     @Override
     public List<User> retrieveUsers(int page, int pageSize, SortBy sortBy, boolean desc) {
         int offset = pageSize * (page - 1);
-
         return userRepository.findAll(offset, pageSize, sortBy, desc);
     }
 
