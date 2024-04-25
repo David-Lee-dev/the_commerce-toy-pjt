@@ -1,11 +1,6 @@
 package thecommerce.jh.user.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import jdk.nashorn.internal.parser.JSONParser;
-import org.assertj.core.api.Assertions;
-import org.json.JSONArray;
 import org.json.JSONObject;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -15,13 +10,10 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.jpa.mapping.JpaMetamodelMappingContext;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import thecommerce.jh.user.common.enums.ErrorCode;
 import thecommerce.jh.user.common.enums.SortBy;
 import thecommerce.jh.user.common.exception.CustomException;
-import thecommerce.jh.user.dto.UserDto;
 import thecommerce.jh.user.model.User;
 import thecommerce.jh.user.service.UserService;
 
@@ -193,6 +185,34 @@ class UserControllerTest {
                             .param("pageSize", "0")
                             .param("sort", "name"))
                     .andExpect(status().isBadRequest());
+        }
+    }
+
+    @Nested
+    class modify {
+
+        User updatedUser = User.builder().id(1L).userId("test").name("test").nickname("test").phoneNumber("test").email("test").build();
+
+        @Test
+        @DisplayName("정상 요청")
+        void Modify() throws Exception {
+            Map<String, String> requestBody = new HashMap<>();
+            requestBody.put("name", "test");
+
+            when(userService.updateUser(any(User.class))).thenReturn(updatedUser);
+
+            mvc.perform(MockMvcRequestBuilders.patch("/api/user/test")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(String.valueOf(new JSONObject(requestBody))))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath(".id").isNotEmpty())
+                    .andExpect(jsonPath(".name").isNotEmpty())
+                    .andExpect(jsonPath(".nickname").isNotEmpty())
+                    .andExpect(jsonPath(".phoneNumber").isNotEmpty())
+                    .andExpect(jsonPath(".email").isNotEmpty())
+                    .andExpect(jsonPath(".createdAt").isNotEmpty())
+                    .andExpect(jsonPath(".userId").isEmpty())
+                    .andExpect(jsonPath(".password").isEmpty());
         }
     }
 }

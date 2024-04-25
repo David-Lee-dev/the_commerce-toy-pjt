@@ -6,14 +6,15 @@ import org.springframework.web.bind.annotation.*;
 import thecommerce.jh.user.common.enums.ErrorCode;
 import thecommerce.jh.user.common.enums.SortBy;
 import thecommerce.jh.user.common.exception.CustomException;
-import thecommerce.jh.user.dto.UserCreationDto;
+import thecommerce.jh.user.dto.UserCreateDto;
 import thecommerce.jh.user.dto.UserDto;
+import thecommerce.jh.user.dto.UserUpdateDto;
+import thecommerce.jh.user.model.User;
 import thecommerce.jh.user.service.UserService;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 @RestController
@@ -27,12 +28,12 @@ public class UserController {
     }
 
     @PostMapping("/join")
-    ResponseEntity join(@RequestBody UserCreationDto userCreationDto) {
-        if(!userCreationDto.getPassword().equals(userCreationDto.getPasswordConfirm())) {
+    ResponseEntity join(@RequestBody UserCreateDto userCreateDto) {
+        if(!userCreateDto.getPassword().equals(userCreateDto.getPasswordConfirm())) {
             throw new CustomException(ErrorCode.INVALID_PASSWORD);
         }
 
-        userService.createUser(userCreationDto.toEntity());
+        userService.createUser(userCreateDto.toEntity());
 
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
@@ -62,4 +63,16 @@ public class UserController {
 
         return ResponseEntity.status(HttpStatus.OK).body(responseObject);
     }
+
+    @PatchMapping("/{userId}")
+    ResponseEntity modify(
+            @PathVariable("userId") String userId,
+            @RequestBody UserUpdateDto userUpdateDto
+        ) {
+
+        User user = userService.updateUser(userUpdateDto.toEntity(userId));
+
+        return ResponseEntity.status(HttpStatus.OK).body(new UserDto(user));
+    }
+
 }
