@@ -1,11 +1,10 @@
 package thecommerce.jh.user.dto;
 
 import lombok.Getter;
-import lombok.Setter;
 import thecommerce.jh.user.model.User;
 
 @Getter
-public class UserCreationDto {
+public class UserCreateDto {
     private String userId;
 
     private String password;
