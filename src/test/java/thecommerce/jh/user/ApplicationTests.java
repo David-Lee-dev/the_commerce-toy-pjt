@@ -54,7 +54,6 @@ class ApplicationTests {
         @Test
         @DisplayName("정상 요청에 대해 201 응답")
         void idealRequest () throws JSONException {
-
             String url = "/api/user/join";
             headers.setContentType(MediaType.APPLICATION_JSON);
             body.put("userId", "test");
@@ -113,48 +112,48 @@ class ApplicationTests {
 
             assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
         }
+    }
 
-        @Nested
-        @DisplayName("GET /api/user/list")
-        class retrieveUsers {
+    @Nested
+    @DisplayName("GET /api/user/list")
+    class retrieveUsers {
 
-            @Test
-            @DisplayName("정상 요청에 대해 page, total, users 데이터와 함께 200 응답")
-            void idealRequest() {
-                String page = "1";
-                String pageSize = "5";
-                String url = String.format("/api/user/list?page=%s&pageSize=%s", page, pageSize);
+        @Test
+        @DisplayName("정상 요청에 대해 page, total, users 데이터와 함께 200 응답")
+        void idealRequest() {
+            String page = "1";
+            String pageSize = "5";
+            String url = String.format("/api/user/list?page=%s&pageSize=%s", page, pageSize);
 
-                ResponseEntity responseEntity = restTemplate.getForEntity(url, String.class);
+            ResponseEntity responseEntity = restTemplate.getForEntity(url, String.class);
 
-                assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
-                assertThat(responseEntity.getBody()).isNotNull();
-            }
+            assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+            assertThat(responseEntity.getBody()).isNotNull();
+        }
 
-            @Test
-            @DisplayName("잘못된 page 값에 대해 400 응답")
-            void invalidPage() {
-                String page = "0";
-                String pageSize = "5";
-                String url = String.format("/api/user/list?page=%s&pageSize=%s", page, pageSize);
+        @Test
+        @DisplayName("잘못된 page 값에 대해 400 응답")
+        void invalidPage() {
+            String page = "0";
+            String pageSize = "5";
+            String url = String.format("/api/user/list?page=%s&pageSize=%s", page, pageSize);
 
-                ResponseEntity responseEntity = restTemplate.getForEntity(url, String.class);
+            ResponseEntity responseEntity = restTemplate.getForEntity(url, String.class);
 
-                assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-            }
+            assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        }
 
 
-            @Test
-            @DisplayName("잘못된 pageSize 값에 대해 400 응답")
-            void invalidPageSize() {
-                String page = "1";
-                String pageSize = "0";
-                String url = String.format("/api/user/list?page=%s&pageSize=%s", page, pageSize);
+        @Test
+        @DisplayName("잘못된 pageSize 값에 대해 400 응답")
+        void invalidPageSize() {
+            String page = "1";
+            String pageSize = "0";
+            String url = String.format("/api/user/list?page=%s&pageSize=%s", page, pageSize);
 
-                ResponseEntity responseEntity = restTemplate.getForEntity(url, String.class);
+            ResponseEntity responseEntity = restTemplate.getForEntity(url, String.class);
 
-                assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-            }
+            assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
         }
     }
 

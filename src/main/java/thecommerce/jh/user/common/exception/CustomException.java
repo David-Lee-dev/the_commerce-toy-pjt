@@ -9,11 +9,19 @@ public class CustomException extends RuntimeException {
     private final String detail;
 
     public CustomException(ErrorCode errorCode) {
+        super();
         this.errorCode = errorCode;
         this.detail = "";
     }
 
+    public CustomException(ErrorCode errorCode, String detail) {
+        super(detail);
+        this.errorCode = errorCode;
+        this.detail = detail;
+    }
+
     public CustomException(ErrorCode errorCode, Throwable cause) {
+        super(cause);
         this.errorCode = errorCode;
         this.detail = cause.getMessage();
     }

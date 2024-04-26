@@ -25,9 +25,9 @@ public class UserServiceImpl implements UserService{
             return userRepository.insert(user);
         } catch (Exception e) {
             if(e instanceof DataIntegrityViolationException) {
-                throw new CustomException(ErrorCode.DUPLICATED_USER_DATA);
+                throw new CustomException(ErrorCode.DUPLICATED_USER_DATA, e);
             } else {
-                throw new CustomException(ErrorCode.UNKNOWN);
+                throw new CustomException(ErrorCode.UNKNOWN, e);
             }
         }
     }
@@ -60,9 +60,9 @@ public class UserServiceImpl implements UserService{
             return userRepository.update(updateUser);
         } catch (Exception e) {
             if(e instanceof DataIntegrityViolationException) {
-                throw new CustomException(ErrorCode.DUPLICATED_USER_DATA);
+                throw new CustomException(ErrorCode.DUPLICATED_USER_DATA, e);
             } else {
-                throw new CustomException(ErrorCode.UNKNOWN);
+                throw new CustomException(ErrorCode.UNKNOWN, e);
             }
         }
     }
