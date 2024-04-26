@@ -1,5 +1,6 @@
 package thecommerce.jh.user.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -28,6 +29,7 @@ public class UserControllerImpl implements UserController {
         this.userService = userService;
     }
 
+    @Operation(summary = "회원가입")
     @PostMapping("/join")
     public ResponseEntity join(@RequestBody UserCreateDto userCreateDto) {
         if(
@@ -49,6 +51,7 @@ public class UserControllerImpl implements UserController {
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
+    @Operation(summary = "회원 목록 조회")
     @GetMapping("/list")
     public ResponseEntity list(
             @RequestParam(required = false, defaultValue = "1") int page,
@@ -75,6 +78,7 @@ public class UserControllerImpl implements UserController {
         return ResponseEntity.status(HttpStatus.OK).body(responseObject);
     }
 
+    @Operation(summary = "회원 수정")
     @PatchMapping("/{userId}")
     public ResponseEntity modify(
             @PathVariable("userId") String userId,
