@@ -1,6 +1,7 @@
 package thecommerce.jh.user.repository;
 
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 import thecommerce.jh.user.common.enums.SortBy;
 import thecommerce.jh.user.model.User;
 
@@ -11,6 +12,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
+@Transactional
 public class JpaUserRepository implements UserRepository {
 
     private final EntityManager entityManager;
@@ -22,7 +24,6 @@ public class JpaUserRepository implements UserRepository {
     @Override
     public User insert(User user) {
         entityManager.persist(user);
-
         return user;
     }
 
@@ -67,7 +68,6 @@ public class JpaUserRepository implements UserRepository {
                 .setMaxResults(limit)
                 .getResultList();
     }
-
 
     @Override
     public User update(User user) {
