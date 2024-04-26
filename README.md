@@ -55,4 +55,6 @@ java -jar build/libs/user-0.0.1-SNAPSHOT.jar
 
 ## 2. Open api(swagger UI) 접속 주소
 
+빌드 및 실행 후 아래 주소로 접속
+
 http://localhost:8080/swagger-ui/index.html#/
