@@ -1,11 +1,14 @@
 package thecommerce.jh.user.service;
 
+import org.aspectj.lang.annotation.Before;
 import org.junit.jupiter.api.*;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.*;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import thecommerce.jh.user.common.TestUserBuilder;
 import thecommerce.jh.user.common.enums.ErrorCode;
 import thecommerce.jh.user.common.enums.SortBy;
 import thecommerce.jh.user.common.exception.CustomException;
@@ -13,51 +16,36 @@ import thecommerce.jh.user.model.User;
 import thecommerce.jh.user.repository.UserRepository;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
-@SpringBootTest
+@ExtendWith(MockitoExtension.class)
 class UserServiceImplTest {
 
-    @Autowired
-    UserService userService;
-
-    @MockBean
+    @Mock
     UserRepository userRepository;
+
+    @InjectMocks
+    UserServiceImpl userService;
 
     @Nested
     class CreateUser {
 
-        User existedUser = User.builder()
-                .userId("test_userId")
-                .password("test_password")
-                .name("test_name")
-                .nickname("test_nickname")
-                .phoneNumber("010-0000-0000")
-                .email("test@test.com")
-                .build();
+        User existedUser = TestUserBuilder.build();
 
         @Test
         @DisplayName("정상적으로 User 생성")
         void idealCreation() {
-            User newUser =  User.builder()
-                    .userId("new_userId")
-                    .password("new_password")
-                    .name("new_name")
-                    .nickname("new_nickname")
-                    .phoneNumber("010-1111-1111")
-                    .email("new@test.com")
-                    .build();
+            User newUser = TestUserBuilder.build("new_userId", "new_password", "new_name", "new_nickname", "010-1111-1111", "new@test.com");
 
             when(userRepository.findByArguments(newUser)).thenReturn(new ArrayList<User>());
             when(userRepository.insert(newUser)).thenReturn(newUser);
-
             User createdUser = userService.createUser(newUser);
+
             assertThat(createdUser).isEqualTo(newUser);
         }
 
@@ -70,13 +58,8 @@ class UserServiceImplTest {
 
             when(userRepository.findByArguments(any(User.class))).thenReturn(returnValueOfRepository);
 
-            try {
-                userService.createUser(duplicatedUserId);
-            } catch(CustomException e) {
-                assertThat(e).isInstanceOf(CustomException.class);
-                assertThat(e.getErrorCode()).isEqualTo(ErrorCode.DUPLICATED_USER_ID);
-            }
-
+            CustomException exception = assertThrows(CustomException.class, () -> userService.createUser(duplicatedUserId));
+            assertThat(exception.getErrorCode()).isEqualTo(ErrorCode.DUPLICATED_USER_ID);
         }
 
         @Test
@@ -88,12 +71,8 @@ class UserServiceImplTest {
 
             when(userRepository.findByArguments(any(User.class))).thenReturn(returnValueOfRepository);
 
-            try {
-                userService.createUser(duplicatedUserId);
-            } catch(CustomException e) {
-                assertThat(e).isInstanceOf(CustomException.class);
-                assertThat(e.getErrorCode()).isEqualTo(ErrorCode.DUPLICATED_PHONE_NUMBER);
-            }
+            CustomException exception = assertThrows(CustomException.class, () -> userService.createUser(duplicatedUserId));
+            assertThat(exception.getErrorCode()).isEqualTo(ErrorCode.DUPLICATED_PHONE_NUMBER);
 
         }
 
@@ -106,12 +85,8 @@ class UserServiceImplTest {
 
             when(userRepository.findByArguments(any(User.class))).thenReturn(returnValueOfRepository);
 
-            try {
-                userService.createUser(duplicatedUserId);
-            } catch(CustomException e) {
-                assertThat(e).isInstanceOf(CustomException.class);
-                assertThat(e.getErrorCode()).isEqualTo(ErrorCode.DUPLICATED_EMAIL);
-            }
+            CustomException exception = assertThrows(CustomException.class, () -> userService.createUser(duplicatedUserId));
+            assertThat(exception.getErrorCode()).isEqualTo(ErrorCode.DUPLICATED_EMAIL);
 
         }
 
@@ -124,13 +99,8 @@ class UserServiceImplTest {
 
             when(userRepository.findByArguments(any(User.class))).thenReturn(returnValueOfRepository);
 
-            try {
-                userService.createUser(duplicatedUserId);
-            } catch(CustomException e) {
-                assertThat(e).isInstanceOf(CustomException.class);
-                assertThat(e.getErrorCode()).isEqualTo(ErrorCode.DUPLICATED_NICKNAME);
-            }
-
+            CustomException exception = assertThrows(CustomException.class, () -> userService.createUser(duplicatedUserId));
+            assertThat(exception.getErrorCode()).isEqualTo(ErrorCode.DUPLICATED_NICKNAME);
         }
     }
 
@@ -149,7 +119,6 @@ class UserServiceImplTest {
             returnValueOfRepository.add(new User());
 
             when(userRepository.findAll(anyInt(), anyInt(), any(SortBy.class), anyBoolean())).thenReturn(returnValueOfRepository);
-
             List<User> users = userService.retrieveUsers(0, 10, SortBy.CREATED_AT, true);
 
             assertThat(users.size()).isEqualTo(3);
@@ -170,14 +139,11 @@ class UserServiceImplTest {
         @Test
         @DisplayName("정상적으로 데이터 업데이트")
         void idealUpdate() {
-            User user = User.builder().id(1L).build();
-            User userUpdated = User.builder()
-                    .id(1L)
-                    .password("test_password")
-                    .build();
+            User user = TestUserBuilder.build();
+            User userUpdated = TestUserBuilder.build("test_userId", "test_password", "new_name", "new_nickname", "010-1111-1111", "new@test.com");
 
-            when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
-            when(userRepository.update(userUpdated)).thenReturn(userUpdated);
+            when(userRepository.findByArguments(any(User.class))).thenReturn(Arrays.asList(user));
+            when(userRepository.update(any(User.class))).thenReturn(userUpdated);
 
             User result = userService.updateUser(userUpdated);
 
@@ -187,7 +153,7 @@ class UserServiceImplTest {
         @Test
         @DisplayName("존재하지 않는 User일 경우 오류 발생")
         void noExistedResourceViolation() {
-            when(userRepository.findById(100L)).thenReturn(null);
+            when(userRepository.findByArguments(any(User.class))).thenReturn(new ArrayList<>());
 
             try {
                 userService.updateUser(new User());

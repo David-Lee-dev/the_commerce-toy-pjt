@@ -7,12 +7,10 @@ import thecommerce.jh.user.common.exception.CustomException;
 import thecommerce.jh.user.model.User;
 import thecommerce.jh.user.repository.UserRepository;
 
-import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Objects;
 
 @Service
-@Transactional
 public class UserServiceImpl implements UserService{
     private final UserRepository userRepository;
 
@@ -39,11 +37,22 @@ public class UserServiceImpl implements UserService{
 
     @Override
     public User updateUser(User user) {
-        if(!userRepository.findById(user.getId()).isPresent()) {
+        List<User> foundUsers = userRepository.findByArguments(user);
+        if(foundUsers.size() != 1) {
             throw new CustomException(ErrorCode.NON_EXISTENT);
         }
 
-        return userRepository.update(user);
+        User updateUser = User.builder()
+                .id(foundUsers.get(0).getId())
+                .userId(foundUsers.get(0).getUserId())
+                .password(foundUsers.get(0).getPassword())
+                .name((user.getName() == null || user.getUserId().isEmpty()) ? foundUsers.get(0).getName() : user.getName())
+                .nickname((user.getNickname() == null || user.getUserId().isEmpty()) ? foundUsers.get(0).getNickname() : user.getNickname())
+                .phoneNumber((user.getPhoneNumber() == null || user.getUserId().isEmpty()) ? foundUsers.get(0).getPhoneNumber() : user.getPhoneNumber())
+                .email((user.getEmail() == null || user.getUserId().isEmpty()) ? foundUsers.get(0).getEmail() : user.getEmail())
+                .build();
+
+        return userRepository.update(updateUser);
     }
 
     private static void checkDuplication(User user, List<User> compareList) {
