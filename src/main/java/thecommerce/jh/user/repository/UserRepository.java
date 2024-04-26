@@ -11,6 +11,8 @@ public interface UserRepository {
 
     Optional<User> findById(Long id);
 
+    Optional<User> findByUserId(String userId);
+
     List<User> findByArguments(User user);
 
     List<User> findAll(int offset, int limit, SortBy sortBy, boolean desc);

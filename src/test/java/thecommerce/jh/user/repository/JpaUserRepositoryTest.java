@@ -46,6 +46,16 @@ class JpaUserRepositoryTest {
     }
 
     @Test
+    void findByUserId() {
+        User user = TestUserBuilder.build();
+        entityManager.persist(user);
+
+        User foundUser = userRepository.findByUserId(user.getUserId()).get();
+
+        assertThat(foundUser).isEqualTo(user);
+    }
+
+    @Test
     void findByArguments() {
         User user = TestUserBuilder.build();
         userRepository.insert(user);

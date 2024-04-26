@@ -33,6 +33,16 @@ public class JpaUserRepository implements UserRepository {
     }
 
     @Override
+    public Optional<User> findByUserId(String userId){
+        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<User> criteriaQuery = criteriaBuilder.createQuery(User.class);
+        Root<User> root = criteriaQuery.from(User.class);
+        criteriaQuery.where(entityManager.getCriteriaBuilder().equal(root.get("userId"), userId));
+
+        return Optional.ofNullable(entityManager.createQuery(criteriaQuery).getSingleResult());
+    }
+
+    @Override
     public List<User> findByArguments(User user) {
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
         CriteriaQuery<User> criteriaQuery = criteriaBuilder.createQuery(User.class);
