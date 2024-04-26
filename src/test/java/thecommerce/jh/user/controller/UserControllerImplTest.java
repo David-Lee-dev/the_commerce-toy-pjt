@@ -80,61 +80,7 @@ class UserControllerImplTest {
             requestBody.put("passwordConfirm", "unmatched password");
             requestBody.put("name", "test");
 
-            when(userService.createUser(any(User.class))).thenThrow(new CustomException(ErrorCode.DUPLICATED_USER_ID));
-
-            mvc.perform(MockMvcRequestBuilders
-                            .post("/api/user/join")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(String.valueOf(new JSONObject(requestBody))))
-                    .andExpect(status().isBadRequest());
-        }
-
-        @Test
-        @DisplayName("nickname 중복일 경우 Bad Request 응답")
-        void duplicatedNickname() throws Exception {
-            Map<String, String> requestBody = new HashMap<>();
-            requestBody.put("userId", "test");
-            requestBody.put("password", "test");
-            requestBody.put("passwordConfirm", "unmatched password");
-            requestBody.put("name", "test");
-
-            when(userService.createUser(any(User.class))).thenThrow(new CustomException(ErrorCode.DUPLICATED_NICKNAME));
-
-            mvc.perform(MockMvcRequestBuilders
-                            .post("/api/user/join")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(String.valueOf(new JSONObject(requestBody))))
-                    .andExpect(status().isBadRequest());
-        }
-
-        @Test
-        @DisplayName("phone number 중복일 경우 Bad Request 응답")
-        void duplicatedPhoneNumber() throws Exception {
-            Map<String, String> requestBody = new HashMap<>();
-            requestBody.put("userId", "test");
-            requestBody.put("password", "test");
-            requestBody.put("passwordConfirm", "unmatched password");
-            requestBody.put("name", "test");
-
-            when(userService.createUser(any(User.class))).thenThrow(new CustomException(ErrorCode.DUPLICATED_PHONE_NUMBER));
-
-            mvc.perform(MockMvcRequestBuilders
-                            .post("/api/user/join")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(String.valueOf(new JSONObject(requestBody))))
-                    .andExpect(status().isBadRequest());
-        }
-
-        @Test
-        @DisplayName("email 중복일 경우 Bad Request 응답")
-        void duplicatedEmail() throws Exception {
-            Map<String, String> requestBody = new HashMap<>();
-            requestBody.put("userId", "test");
-            requestBody.put("password", "test");
-            requestBody.put("passwordConfirm", "unmatched password");
-            requestBody.put("name", "test");
-
-            when(userService.createUser(any(User.class))).thenThrow(new CustomException(ErrorCode.DUPLICATED_EMAIL));
+            when(userService.createUser(any(User.class))).thenThrow(new CustomException(ErrorCode.DUPLICATED_USER_DATA));
 
             mvc.perform(MockMvcRequestBuilders
                             .post("/api/user/join")

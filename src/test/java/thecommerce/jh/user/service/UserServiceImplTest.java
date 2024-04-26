@@ -1,13 +1,10 @@
 package thecommerce.jh.user.service;
 
-import org.aspectj.lang.annotation.Before;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.dao.DataIntegrityViolationException;
 import thecommerce.jh.user.common.TestUserBuilder;
 import thecommerce.jh.user.common.enums.ErrorCode;
 import thecommerce.jh.user.common.enums.SortBy;
@@ -42,7 +39,6 @@ class UserServiceImplTest {
         void idealCreation() {
             User newUser = TestUserBuilder.build("new_userId", "new_password", "new_name", "new_nickname", "010-1111-1111", "new@test.com");
 
-            when(userRepository.findByArguments(newUser)).thenReturn(new ArrayList<User>());
             when(userRepository.insert(newUser)).thenReturn(newUser);
             User createdUser = userService.createUser(newUser);
 
@@ -50,57 +46,16 @@ class UserServiceImplTest {
         }
 
         @Test
-        @DisplayName("중복 userId에 대해 오류 발생")
+        @DisplayName("중복 user data 대해 오류 발생")
         void userIdViolation() {
             List<User> returnValueOfRepository = new ArrayList<>();
             returnValueOfRepository.add(existedUser);
             User duplicatedUserId = User.builder().userId(existedUser.getUserId()).build();
 
-            when(userRepository.findByArguments(any(User.class))).thenReturn(returnValueOfRepository);
+            when(userRepository.insert(any(User.class))).thenThrow(DataIntegrityViolationException.class);
 
             CustomException exception = assertThrows(CustomException.class, () -> userService.createUser(duplicatedUserId));
-            assertThat(exception.getErrorCode()).isEqualTo(ErrorCode.DUPLICATED_USER_ID);
-        }
-
-        @Test
-        @DisplayName("중복 phoneNumber에 대해 오류 발생")
-        void phoneNumberViolation() {
-            List<User> returnValueOfRepository = new ArrayList<>();
-            returnValueOfRepository.add(existedUser);
-            User duplicatedUserId = User.builder().phoneNumber(existedUser.getPhoneNumber()).build();
-
-            when(userRepository.findByArguments(any(User.class))).thenReturn(returnValueOfRepository);
-
-            CustomException exception = assertThrows(CustomException.class, () -> userService.createUser(duplicatedUserId));
-            assertThat(exception.getErrorCode()).isEqualTo(ErrorCode.DUPLICATED_PHONE_NUMBER);
-
-        }
-
-        @Test
-        @DisplayName("중복 email 대해 오류 발생")
-        void emailViolation() {
-            List<User> returnValueOfRepository = new ArrayList<>();
-            returnValueOfRepository.add(existedUser);
-            User duplicatedUserId = User.builder().email(existedUser.getEmail()).build();
-
-            when(userRepository.findByArguments(any(User.class))).thenReturn(returnValueOfRepository);
-
-            CustomException exception = assertThrows(CustomException.class, () -> userService.createUser(duplicatedUserId));
-            assertThat(exception.getErrorCode()).isEqualTo(ErrorCode.DUPLICATED_EMAIL);
-
-        }
-
-        @Test
-        @DisplayName("중복 nickname에 대해 오류 발생")
-        void nicknameViolation() {
-            List<User> returnValueOfRepository = new ArrayList<>();
-            returnValueOfRepository.add(existedUser);
-            User duplicatedUserId = User.builder().nickname(existedUser.getNickname()).build();
-
-            when(userRepository.findByArguments(any(User.class))).thenReturn(returnValueOfRepository);
-
-            CustomException exception = assertThrows(CustomException.class, () -> userService.createUser(duplicatedUserId));
-            assertThat(exception.getErrorCode()).isEqualTo(ErrorCode.DUPLICATED_NICKNAME);
+            assertThat(exception.getErrorCode()).isEqualTo(ErrorCode.DUPLICATED_USER_DATA);
         }
     }
 
@@ -142,7 +97,7 @@ class UserServiceImplTest {
             User user = TestUserBuilder.build();
             User userUpdated = TestUserBuilder.build("test_userId", "test_password", "new_name", "new_nickname", "010-1111-1111", "new@test.com");
 
-            when(userRepository.findByArguments(any(User.class))).thenReturn(Arrays.asList(user));
+            when(userRepository.findByUserId(anyString())).thenReturn(Optional.ofNullable(user));
             when(userRepository.update(any(User.class))).thenReturn(userUpdated);
 
             User result = userService.updateUser(userUpdated);
@@ -153,14 +108,23 @@ class UserServiceImplTest {
         @Test
         @DisplayName("존재하지 않는 User일 경우 오류 발생")
         void noExistedResourceViolation() {
-            when(userRepository.findByArguments(any(User.class))).thenReturn(new ArrayList<>());
+            User user = TestUserBuilder.build();
+            when(userRepository.findByUserId(anyString())).thenReturn(Optional.ofNullable(null));
 
-            try {
-                userService.updateUser(new User());
-            } catch(CustomException e) {
-                assertThat(e).isInstanceOf(CustomException.class);
-                assertThat(e.getErrorCode()).isEqualTo(ErrorCode.NON_EXISTENT);
-            }
+            Assertions.assertThrows(CustomException.class, () -> userService.updateUser(user));
+        }
+
+        @Test
+        @DisplayName("중복 user data 대해 오류 발생")
+        void userIdViolation() {
+            User user = TestUserBuilder.build();
+            User userUpdated = TestUserBuilder.build("test_userId", "test_password", "new_name", "new_nickname", "010-1111-1111", "new@test.com");
+
+            when(userRepository.findByUserId(anyString())).thenReturn(Optional.ofNullable(user));
+            when(userRepository.update(any(User.class))).thenThrow(DataIntegrityViolationException.class);
+
+            CustomException exception = assertThrows(CustomException.class, () -> userService.updateUser(userUpdated));
+            assertThat(exception.getErrorCode()).isEqualTo(ErrorCode.DUPLICATED_USER_DATA);
         }
     }
 }

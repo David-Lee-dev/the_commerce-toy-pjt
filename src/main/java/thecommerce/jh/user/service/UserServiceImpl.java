@@ -1,5 +1,6 @@
 package thecommerce.jh.user.service;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import thecommerce.jh.user.common.enums.ErrorCode;
 import thecommerce.jh.user.common.enums.SortBy;
@@ -8,7 +9,7 @@ import thecommerce.jh.user.model.User;
 import thecommerce.jh.user.repository.UserRepository;
 
 import java.util.List;
-import java.util.Objects;
+import java.util.Optional;
 
 @Service
 public class UserServiceImpl implements UserService{
@@ -20,13 +21,15 @@ public class UserServiceImpl implements UserService{
 
     @Override
     public User createUser(User user) {
-        List<User> foundUsers = userRepository.findByArguments(user);
-
-        if(!foundUsers.isEmpty()) {
-            checkDuplication(user, foundUsers);
+        try {
+            return userRepository.insert(user);
+        } catch (Exception e) {
+            if(e instanceof DataIntegrityViolationException) {
+                throw new CustomException(ErrorCode.DUPLICATED_USER_DATA);
+            } else {
+                throw new CustomException(ErrorCode.UNKNOWN);
+            }
         }
-
-        return userRepository.insert(user);
     }
 
     @Override
@@ -36,41 +39,29 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
-    public User updateUser(User user) {
-        List<User> foundUsers = userRepository.findByArguments(user);
-        if(foundUsers.size() != 1) {
+    public User updateUser(User userDataForUpdate) {
+        Optional<User> foundUsers = userRepository.findByUserId(userDataForUpdate.getUserId());
+
+        if(!foundUsers.isPresent()) {
             throw new CustomException(ErrorCode.NON_EXISTENT);
         }
 
         User updateUser = User.builder()
-                .id(foundUsers.get(0).getId())
-                .userId(foundUsers.get(0).getUserId())
-                .password(foundUsers.get(0).getPassword())
-                .name((user.getName() == null || user.getUserId().isEmpty()) ? foundUsers.get(0).getName() : user.getName())
-                .nickname((user.getNickname() == null || user.getUserId().isEmpty()) ? foundUsers.get(0).getNickname() : user.getNickname())
-                .phoneNumber((user.getPhoneNumber() == null || user.getUserId().isEmpty()) ? foundUsers.get(0).getPhoneNumber() : user.getPhoneNumber())
-                .email((user.getEmail() == null || user.getUserId().isEmpty()) ? foundUsers.get(0).getEmail() : user.getEmail())
+                .id(foundUsers.get().getId())
+                .userId(foundUsers.get().getUserId())
+                .password(foundUsers.get().getPassword())
+                .name((userDataForUpdate.getName() == null || userDataForUpdate.getUserId().isEmpty()) ? foundUsers.get().getName() : userDataForUpdate.getName())
+                .nickname((userDataForUpdate.getNickname() == null || userDataForUpdate.getUserId().isEmpty()) ? foundUsers.get().getNickname() : userDataForUpdate.getNickname())
+                .phoneNumber((userDataForUpdate.getPhoneNumber() == null || userDataForUpdate.getUserId().isEmpty()) ? foundUsers.get().getPhoneNumber() : userDataForUpdate.getPhoneNumber())
+                .email((userDataForUpdate.getEmail() == null || userDataForUpdate.getUserId().isEmpty()) ? foundUsers.get().getEmail() : userDataForUpdate.getEmail())
                 .build();
-
-        return userRepository.update(updateUser);
-    }
-
-    private static void checkDuplication(User user, List<User> compareList) {
-        for (User compare : compareList) {
-            if (Objects.equals(compare.getUserId(), user.getUserId())) {
-                throw new CustomException(ErrorCode.DUPLICATED_USER_ID);
-            }
-
-            if (Objects.equals(compare.getPhoneNumber(), user.getPhoneNumber())) {
-                throw new CustomException(ErrorCode.DUPLICATED_PHONE_NUMBER);
-            }
-
-            if (Objects.equals(compare.getEmail(), user.getEmail())) {
-                throw new CustomException(ErrorCode.DUPLICATED_EMAIL);
-            }
-
-            if (Objects.equals(compare.getNickname(), user.getNickname())) {
-                throw new CustomException(ErrorCode.DUPLICATED_NICKNAME);
+        try {
+            return userRepository.update(updateUser);
+        } catch (Exception e) {
+            if(e instanceof DataIntegrityViolationException) {
+                throw new CustomException(ErrorCode.DUPLICATED_USER_DATA);
+            } else {
+                throw new CustomException(ErrorCode.UNKNOWN);
             }
         }
     }
