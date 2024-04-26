@@ -5,10 +5,7 @@ import thecommerce.jh.user.common.enums.SortBy;
 import thecommerce.jh.user.model.User;
 
 import javax.persistence.EntityManager;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
+import javax.persistence.criteria.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -34,27 +31,17 @@ public class JpaUserRepository implements UserRepository {
         return Optional.ofNullable(entityManager.find(User.class, id));
     }
 
+    @Override
     public List<User> findByArguments(User user) {
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
         CriteriaQuery<User> criteriaQuery = criteriaBuilder.createQuery(User.class);
         Root<User> root = criteriaQuery.from(User.class);
         List<Predicate> predicates = new ArrayList<>();
 
-        if (user.getUserId() != null && !user.getUserId().isEmpty()) {
-            predicates.add(criteriaBuilder.equal(root.get("userId"), user.getUserId()));
-        }
-
-        if (user.getNickname() != null && !user.getNickname().isEmpty()) {
-            predicates.add(criteriaBuilder.equal(root.get("nickname"), user.getNickname()));
-        }
-
-        if (user.getPhoneNumber() != null && !user.getPhoneNumber().isEmpty()) {
-            predicates.add(criteriaBuilder.equal(root.get("phoneNumber"), user.getPhoneNumber()));
-        }
-
-        if (user.getEmail() != null && !user.getEmail().isEmpty()) {
-            predicates.add(criteriaBuilder.equal(root.get("email"), user.getEmail()));
-        }
+        addPredicateIfNotNull(predicates, user.getUserId(), root.get("userId"));
+        addPredicateIfNotNull(predicates, user.getNickname(), root.get("nickname"));
+        addPredicateIfNotNull(predicates, user.getPhoneNumber(), root.get("phoneNumber"));
+        addPredicateIfNotNull(predicates, user.getEmail(), root.get("email"));
 
         if (!predicates.isEmpty()) {
             criteriaQuery.where(criteriaBuilder.or(predicates.toArray(new Predicate[0])));
@@ -65,19 +52,17 @@ public class JpaUserRepository implements UserRepository {
 
     @Override
     public List<User> findAll(int offset, int limit, SortBy sortBy, boolean desc) {
-        String queryString = "SELECT m FROM User m ORDER BY ";
+        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<User> criteriaQuery = criteriaBuilder.createQuery(User.class);
+        Root<User> root = criteriaQuery.from(User.class);
 
         if (sortBy == SortBy.CREATED_AT) {
-            queryString += "m.createdAt";
+            criteriaQuery.orderBy(desc ? criteriaBuilder.desc(root.get("createdAt")) : criteriaBuilder.asc(root.get("createdAt")));
         } else {
-            queryString += "m.name";
+            criteriaQuery.orderBy(desc ? criteriaBuilder.desc(root.get("name")) : criteriaBuilder.asc(root.get("name")));
         }
 
-        if (desc) {
-            queryString += " DESC";
-        }
-
-        return entityManager.createQuery(queryString, User.class)
+        return entityManager.createQuery(criteriaQuery)
                 .setFirstResult(offset)
                 .setMaxResults(limit)
                 .getResultList();
@@ -87,5 +72,11 @@ public class JpaUserRepository implements UserRepository {
     @Override
     public User update(User user) {
         return entityManager.merge(user);
+    }
+
+    private void addPredicateIfNotNull(List<Predicate> predicates, String value, Path<String> path) {
+        if (value != null && !value.isEmpty()) {
+            predicates.add(entityManager.getCriteriaBuilder().equal(path, value));
+        }
     }
 }

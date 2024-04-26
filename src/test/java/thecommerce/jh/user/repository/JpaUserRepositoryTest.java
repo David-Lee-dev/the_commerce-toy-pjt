@@ -22,30 +22,22 @@ class JpaUserRepositoryTest {
     UserRepository userRepository;
 
     @Autowired
-    private TestEntityManager entityManager;
+    TestEntityManager entityManager;
 
     @Test
     void insert() {
-        User user = User.builder()
-                .userId("test_userId")
-                .password("test_password")
-                .name("test_name")
-                .build();
+        User user = createUser("test_userId", "test_password", "test_name");
+
         userRepository.insert(user);
 
         User createdUser = entityManager.find(User.class, user.getId());
-
         assertThat(createdUser).isEqualTo(user);
     }
 
     @Test
     void findById() {
-        User user = User.builder()
-                .userId("test_userId")
-                .password("test_password")
-                .name("test_name")
-                .build();
-        userRepository.insert(user);
+        User user = createUser("test_userId", "test_password", "test_name");
+        entityManager.persist(user);
 
         User foundUser = userRepository.findById(user.getId()).get();
 
@@ -79,16 +71,8 @@ class JpaUserRepositoryTest {
 
     @Test
     void findAll() {
-        User userA = User.builder()
-                .userId("test_userId_A")
-                .password("test_password_A")
-                .name("test_name_A")
-                .build();
-        User userB = User.builder()
-                .userId("test_userId_B")
-                .password("test_password_B")
-                .name("test_name_B")
-                .build();
+        User userA = createUser("test_userId_A", "test_password_A", "test_name_A");
+        User userB = createUser("test_userId_B", "test_password_B", "test_name_B");
         userRepository.insert(userA);
         userRepository.insert(userB);
 
@@ -107,22 +91,24 @@ class JpaUserRepositoryTest {
     void update() {
         String originalPassword = "test_password";
         String changedPassword = "updated_test_password";
-        User user = User.builder()
-                .userId("test_userId")
-                .password(originalPassword)
-                .name("test_name")
-                .build();
+        User user = createUser("test_userId", originalPassword, "test_name");
+        userRepository.insert(user);
 
-        User newUser = User.builder()
-                .userId("test_userId")
-                .password(changedPassword)
-                .name("test_name")
-                .build();
-        ReflectionTestUtils.setField(newUser,"id",user.getId());
+        assertThat(user.getPassword()).isEqualTo(originalPassword);
 
-        User updatedUser = userRepository.update(newUser);
+        User userForUpdate = createUser("test_userId", changedPassword, "test_name");
+        ReflectionTestUtils.setField(userForUpdate,"id", user.getId());
+        User updatedUser = userRepository.update(userForUpdate);
 
         assertThat(updatedUser.getPassword()).isNotEqualTo(originalPassword);
         assertThat(updatedUser.getPassword()).isEqualTo(changedPassword);
+    }
+
+    private User createUser(String userId, String password, String name) {
+        return User.builder()
+                .userId(userId)
+                .password(password)
+                .name(name)
+                .build();
     }
 }

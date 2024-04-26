@@ -17,7 +17,6 @@ import thecommerce.jh.user.common.exception.CustomException;
 import thecommerce.jh.user.model.User;
 import thecommerce.jh.user.service.UserService;
 
-import java.sql.Array;
 import java.util.*;
 
 import static org.mockito.ArgumentMatchers.*;
