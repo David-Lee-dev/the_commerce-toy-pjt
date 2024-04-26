@@ -55,6 +55,7 @@ public class UserServiceImpl implements UserService{
                 .phoneNumber((userDataForUpdate.getPhoneNumber() == null || userDataForUpdate.getUserId().isEmpty()) ? foundUsers.get().getPhoneNumber() : userDataForUpdate.getPhoneNumber())
                 .email((userDataForUpdate.getEmail() == null || userDataForUpdate.getUserId().isEmpty()) ? foundUsers.get().getEmail() : userDataForUpdate.getEmail())
                 .build();
+
         try {
             return userRepository.update(updateUser);
         } catch (Exception e) {

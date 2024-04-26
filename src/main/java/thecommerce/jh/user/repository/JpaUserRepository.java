@@ -39,7 +39,9 @@ public class JpaUserRepository implements UserRepository {
         Root<User> root = criteriaQuery.from(User.class);
         criteriaQuery.where(entityManager.getCriteriaBuilder().equal(root.get("userId"), userId));
 
-        return Optional.ofNullable(entityManager.createQuery(criteriaQuery).getSingleResult());
+        List<User> foundUser = entityManager.createQuery(criteriaQuery).getResultList();
+
+        return foundUser.stream().findFirst();
     }
 
     @Override
