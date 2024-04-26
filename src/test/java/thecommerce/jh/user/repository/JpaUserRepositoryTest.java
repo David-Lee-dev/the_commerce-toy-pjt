@@ -6,6 +6,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.util.ReflectionTestUtils;
+import thecommerce.jh.user.common.TestUserBuilder;
 import thecommerce.jh.user.common.enums.SortBy;
 import thecommerce.jh.user.config.AppConfig;
 import thecommerce.jh.user.model.User;
@@ -26,7 +27,7 @@ class JpaUserRepositoryTest {
 
     @Test
     void insert() {
-        User user = createUser("test_userId", "test_password", "test_name");
+        User user = TestUserBuilder.build();
 
         userRepository.insert(user);
 
@@ -36,7 +37,7 @@ class JpaUserRepositoryTest {
 
     @Test
     void findById() {
-        User user = createUser("test_userId", "test_password", "test_name");
+        User user = TestUserBuilder.build();
         entityManager.persist(user);
 
         User foundUser = userRepository.findById(user.getId()).get();
@@ -46,14 +47,7 @@ class JpaUserRepositoryTest {
 
     @Test
     void findByArguments() {
-        User user = User.builder()
-                .userId("test_userId")
-                .password("test_password")
-                .name("test_name")
-                .nickname("test_nickname")
-                .phoneNumber("010-0000-0000")
-                .email("test@test.com")
-                .build();
+        User user = TestUserBuilder.build();
         userRepository.insert(user);
 
         List<User> foundByUserId = userRepository.findByArguments(User.builder().userId(user.getUserId()).build());
@@ -71,8 +65,8 @@ class JpaUserRepositoryTest {
 
     @Test
     void findAll() {
-        User userA = createUser("test_userId_A", "test_password_A", "test_name_A");
-        User userB = createUser("test_userId_B", "test_password_B", "test_name_B");
+        User userA = TestUserBuilder.build("test_userId_A", "test_password_A", "test_name_A");
+        User userB = TestUserBuilder.build("test_userId_B", "test_password_B", "test_name_B");
         userRepository.insert(userA);
         userRepository.insert(userB);
 
@@ -91,24 +85,16 @@ class JpaUserRepositoryTest {
     void update() {
         String originalPassword = "test_password";
         String changedPassword = "updated_test_password";
-        User user = createUser("test_userId", originalPassword, "test_name");
+        User user = TestUserBuilder.build("test_userId", originalPassword, "test_name");
         userRepository.insert(user);
 
         assertThat(user.getPassword()).isEqualTo(originalPassword);
 
-        User userForUpdate = createUser("test_userId", changedPassword, "test_name");
+        User userForUpdate = TestUserBuilder.build("test_userId", changedPassword, "test_name");
         ReflectionTestUtils.setField(userForUpdate,"id", user.getId());
         User updatedUser = userRepository.update(userForUpdate);
 
         assertThat(updatedUser.getPassword()).isNotEqualTo(originalPassword);
         assertThat(updatedUser.getPassword()).isEqualTo(changedPassword);
-    }
-
-    private User createUser(String userId, String password, String name) {
-        return User.builder()
-                .userId(userId)
-                .password(password)
-                .name(name)
-                .build();
     }
 }
